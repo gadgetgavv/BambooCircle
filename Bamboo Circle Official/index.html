@@ -654,6 +654,10 @@
                     return a.username.localeCompare(b.username);
                 });
                 
+                // Save top 100 users to localStorage
+                const top100Users = leaderboardData.slice(0, 100);
+                localStorage.setItem('bambooCircleLeaderboard', JSON.stringify(top100Users));
+                
                 // Reset search and display data
                 searchInput.value = '';
                 filteredData = [...leaderboardData];
@@ -670,6 +674,26 @@
                 `;
             }
         }
+
+        // Function to load saved data from localStorage
+        function loadSavedData() {
+            const savedData = localStorage.getItem('bambooCircleLeaderboard');
+            if (savedData) {
+                try {
+                    leaderboardData = JSON.parse(savedData);
+                    filteredData = [...leaderboardData];
+                    displayData(filteredData);
+                    updateStats(leaderboardData);
+                    statsContainer.style.display = 'flex';
+                } catch (error) {
+                    console.error('Error loading saved data:', error);
+                    localStorage.removeItem('bambooCircleLeaderboard');
+                }
+            }
+        }
+
+        // Load saved data when the page loads
+        document.addEventListener('DOMContentLoaded', loadSavedData);
 
         // Function to display data
         function displayData(data) {
