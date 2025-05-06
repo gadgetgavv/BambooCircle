@@ -1,0 +1,11 @@
+{
+    "name": "bamboo-circle-leaderboard",
+    "version": "1.0.0",
+    "description": "Moso's Bamboo Circle Leaderboard",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "author": "",
+    "license": "ISC"
+  }
