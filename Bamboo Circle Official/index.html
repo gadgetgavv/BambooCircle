@@ -107,6 +107,40 @@
             transform: translateY(-2px);
         }
 
+        .password-container {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .password-input {
+            padding: 8px 15px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .password-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .password-submit {
+            padding: 8px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .password-submit:hover {
+            background-color: var(--secondary-color);
+        }
+
         #csvFile {
             display: none;
         }
@@ -364,6 +398,10 @@
                 Upload CSV File
             </label>
             <input type="file" id="csvFile" accept=".csv" />
+            <div id="passwordContainer" class="password-container">
+                <input type="password" id="passwordInput" class="password-input" placeholder="Enter password" />
+                <button id="passwordSubmit" class="password-submit">Submit</button>
+            </div>
         </div>
 
         <div id="statsContainer" class="stats" style="display: none;">
@@ -526,12 +564,16 @@
         // Global variables
         let leaderboardData = [];
         let filteredData = [];
+        const CORRECT_PASSWORD = "gadgetgav"; // You should change this to your desired password
 
         // DOM elements
         const csvFileInput = document.getElementById('csvFile');
         const leaderboardBody = document.getElementById('leaderboardBody');
         const searchInput = document.getElementById('searchInput');
         const statsContainer = document.getElementById('statsContainer');
+        const passwordContainer = document.getElementById('passwordContainer');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordSubmit = document.getElementById('passwordSubmit');
         
         // Stats elements
         const totalMembersElement = document.getElementById('totalMembers');
@@ -545,6 +587,22 @@
 
         // Event listener for search
         searchInput.addEventListener('input', handleSearch);
+
+        // Event listener for password submit
+        passwordSubmit.addEventListener('click', handlePasswordSubmit);
+
+        // Function to handle password submission
+        function handlePasswordSubmit() {
+            const enteredPassword = passwordInput.value;
+            if (enteredPassword === CORRECT_PASSWORD) {
+                passwordContainer.style.display = 'none';
+                passwordInput.value = '';
+                csvFileInput.click();
+            } else {
+                alert('Incorrect password. Please try again.');
+                passwordInput.value = '';
+            }
+        }
 
         // Function to handle file upload
         function handleFileUpload(event) {
@@ -682,6 +740,12 @@
             prestigeIICountElement.textContent = prestigeIICount;
             readyToPrestigeCountElement.textContent = readyToPrestigeCount;
         }
+
+        // Modify the file upload label click handler
+        document.querySelector('.file-upload-label').addEventListener('click', function(e) {
+            e.preventDefault();
+            passwordContainer.style.display = 'block';
+        });
     </script>
 </body>
 </html>
