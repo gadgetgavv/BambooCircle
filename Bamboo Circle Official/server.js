@@ -3,6 +3,11 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
+// Railway specific health check
+app.get('/', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);
@@ -46,7 +51,11 @@ app.post('/api/leaderboard', (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
+    res.status(200).json({ 
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
 });
 
 // Serve index.html for all other routes
