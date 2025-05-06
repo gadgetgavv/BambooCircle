@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moso's Bamboo Circle Leaderboard</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #87BC72;
+            --accent-color: #795548;
+            --background-color: #f8f8f8;
+            --text-color: #333;
+            --highlight-color: #FFC107;
+            --prestige-i-color: #cd7f32;
+            --prestige-ii-color: #C0C0C0;
+            --prestige-iii-color: #FFD700;
+            --prestige-iv-color: #b9f2ff;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50 L55 45 L60 50 L65 45 L50 30 L35 45 L40 50 L45 45 Z' fill='%234CAF50' fill-opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--prestige-i-color), var(--prestige-ii-color), var(--prestige-iii-color), var(--prestige-iv-color));
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        header p {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        .bamboo-icon {
+            display: inline-block;
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .panda-icon {
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .file-upload {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .file-upload-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .file-upload-label:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .password-container {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .password-input {
+            padding: 8px 15px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .password-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .password-submit {
+            padding: 8px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .password-submit:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #csvFile {
+            display: none;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .leaderboard {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .leaderboard-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 200px 150px 150px;
+            padding: 15px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        .leaderboard-body {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .user-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 200px 150px 150px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease;
+            align-items: center;
+        }
+
+        .user-row:last-child {
+            border-bottom: none;
+        }
+
+        .user-row:hover {
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+
+        .rank {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--secondary-color);
+        }
+
+        .username {
+            font-weight: 500;
+        }
+
+        .badge-count {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-icon {
+            color: var(--highlight-color);
+        }
+
+        .prestige {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 15px;
+            text-align: center;
+            width: fit-content;
+        }
+
+        .prestige-i {
+            background-color: rgba(205, 127, 50, 0.2);
+            color: var(--prestige-i-color);
+        }
+
+        .prestige-ii {
+            background-color: rgba(192, 192, 192, 0.2);
+            color: var(--prestige-ii-color);
+        }
+
+        .prestige-iii {
+            background-color: rgba(255, 215, 0, 0.2);
+            color: var(--prestige-iii-color);
+        }
+
+        .prestige-iv {
+            background-color: rgba(185, 242, 255, 0.2);
+            color: var(--prestige-iv-color);
+        }
+
+        .progress-status {
+            display: flex;
+            align-items: center;
+        }
+
+        .ready-status {
+            color: var(--highlight-color);
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background-color: rgba(255, 193, 7, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        .progress-needed {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(76, 175, 80, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.6;
+            }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: var(--card-shadow);
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 5px 0;
+        }
+
+        .stat-label {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-header, .user-row {
+                grid-template-columns: 50px 1fr 100px 100px;
+            }
+            
+            .leaderboard-header div:nth-child(3), .user-row div:nth-child(3) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .leaderboard-header, .user-row {
+                grid-template-columns: 40px 1fr 80px;
+            }
+            
+            .leaderboard-header div:nth-child(4), .user-row div:nth-child(4) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="bamboo-icon">🎋</span> Moso's Bamboo Circle <span class="panda-icon">🐼</span></h1>
+            <p>Loyalty Program Leaderboard</p>
+        </header>
+
+        <div class="file-upload">
+            <label class="file-upload-label" for="csvFile">
+                Upload CSV File
+            </label>
+            <input type="file" id="csvFile" accept=".csv" />
+            <div id="passwordContainer" class="password-container">
+                <input type="password" id="passwordInput" class="password-input" placeholder="Enter password" />
+                <button id="passwordSubmit" class="password-submit">Submit</button>
+            </div>
+        </div>
+
+        <div id="statsContainer" class="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-label">Total Members</div>
+                <div id="totalMembers" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Prestige IV</div>
+                <div id="prestigeIVCount" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Prestige III</div>
+                <div id="prestigeIIICount" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Prestige II</div>
+                <div id="prestigeIICount" class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ready to Prestige</div>
+                <div id="readyToPrestigeCount" class="stat-value">0</div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by username..." />
+        </div>
+
+        <div class="leaderboard">
+            <div class="leaderboard-header">
+                <div>Rank</div>
+                <div>User</div>
+                <div>Badges</div>
+                <div>Prestige</div>
+                <div>Progress Status</div>
+            </div>
+            <div id="leaderboardBody" class="leaderboard-body">
+                <div class="no-results">
+                    Upload a CSV file to view the leaderboard
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            &copy; 2025 Moso's Bamboo Circle. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        // The badges to count for the loyalty program (25 specific ones)
+        const badgesToCount = [
+            "HAS_Early Adopter", "HAS_Bronze Referrals", "HAS_Silver Referrals", 
+            "HAS_Moso OG", "HAS_Gold Purchaser", "HAS_Bronze Purchaser", 
+            "HAS_Silver Purchaser", "HAS_Platinum Purchaser", "HAS_Former POTW", 
+            "HAS_Diamond Volume", "HAS_Silver Volume", "HAS_Platinum Volume", 
+            "HAS_Bronze Volume", "HAS_Diamond Purchaser", "HAS_Gold Volume", 
+            "HAS_Diamond Referrals", "HAS_Platinum Referrals", "HAS_Gold Referrals", 
+            "HAS_Rambler", "HAS_Panda Quester", "HAS_Police Force", 
+            "HAS_Content Creator", "HAS_Influencer", "HAS_Technician", "HAS_Helping Hand"
+        ];
+
+        // Main data processing function
+        function processCSVData(csvData) {
+            // Parse the CSV data
+            const rows = csvData.split('\n');
+            const headers = rows[0].split(',');
+            
+            // Find indexes for badge columns
+            const badgeIndexes = badgesToCount.map(badge => headers.indexOf(badge));
+            const prestigeIndexes = {
+                I: headers.indexOf("HAS_Prestige I"),
+                II: headers.indexOf("HAS_Prestige II"),
+                III: headers.indexOf("HAS_Prestige III"),
+                IV: headers.indexOf("HAS_Prestige IV")
+            };
+            
+            const usernameIndex = headers.indexOf("username");
+            const avatarUrlIndex = headers.indexOf("avatarUrl");
+            const lastEngagementIndex = headers.indexOf("lastEngagement");
+            
+            if (usernameIndex === -1) {
+                alert("Error: 'username' column not found in CSV.");
+                return [];
+            }
+            
+            // Process each user
+            const processedData = [];
+            for (let i = 1; i < rows.length; i++) {
+                // Skip empty rows
+                if (!rows[i].trim()) continue;
+                
+                const values = parseCSVRow(rows[i]);
+                if (values.length <= usernameIndex) continue;
+                
+                const username = values[usernameIndex]?.replace(/"/g, '') || 'Unknown';
+                const avatarUrl = values[avatarUrlIndex]?.replace(/"/g, '') || '';
+                const lastEngagement = values[lastEngagementIndex]?.replace(/"/g, '') || '';
+                
+                // Count badges
+                let badgeCount = 0;
+                for (const index of badgeIndexes) {
+                    if (index !== -1 && values[index]?.toLowerCase() === 'true') {
+                        badgeCount++;
+                    }
+                }
+                
+                // Determine highest prestige level
+                let prestigeLevel = "I"; // Default
+                if (prestigeIndexes.IV !== -1 && values[prestigeIndexes.IV]?.toLowerCase() === 'true') {
+                    prestigeLevel = "IV";
+                } else if (prestigeIndexes.III !== -1 && values[prestigeIndexes.III]?.toLowerCase() === 'true') {
+                    prestigeLevel = "III";
+                } else if (prestigeIndexes.II !== -1 && values[prestigeIndexes.II]?.toLowerCase() === 'true') {
+                    prestigeLevel = "II";
+                }
+                
+                // Determine if ready to prestige
+                const readyToPrestige = badgeCount >= 15 && 
+                    ((prestigeLevel === "I" && (prestigeIndexes.II === -1 || values[prestigeIndexes.II]?.toLowerCase() !== 'true')) || 
+                     (prestigeLevel === "II" && (prestigeIndexes.III === -1 || values[prestigeIndexes.III]?.toLowerCase() !== 'true')) || 
+                     (prestigeLevel === "III" && (prestigeIndexes.IV === -1 || values[prestigeIndexes.IV]?.toLowerCase() !== 'true')));
+                
+                processedData.push({
+                    username,
+                    avatarUrl,
+                    badgeCount,
+                    prestigeLevel,
+                    lastEngagement,
+                    readyToPrestige
+                });
+            }
+            
+            return processedData;
+        }
+        
+        // Helper function to parse CSV rows properly (handling quoted fields)
+        function parseCSVRow(row) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < row.length; i++) {
+                const char = row[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+
+        // Global variables
+        let leaderboardData = [];
+        let filteredData = [];
+        const CORRECT_PASSWORD = "gadgetgav"; // You should change this to your desired password
+
+        // DOM elements
+        const csvFileInput = document.getElementById('csvFile');
+        const leaderboardBody = document.getElementById('leaderboardBody');
+        const searchInput = document.getElementById('searchInput');
+        const statsContainer = document.getElementById('statsContainer');
+        const passwordContainer = document.getElementById('passwordContainer');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordSubmit = document.getElementById('passwordSubmit');
+        
+        // Stats elements
+        const totalMembersElement = document.getElementById('totalMembers');
+        const prestigeIVCountElement = document.getElementById('prestigeIVCount');
+        const prestigeIIICountElement = document.getElementById('prestigeIIICount');
+        const prestigeIICountElement = document.getElementById('prestigeIICount');
+        const readyToPrestigeCountElement = document.getElementById('readyToPrestigeCount');
+
+        // Event listener for file upload
+        csvFileInput.addEventListener('change', handleFileUpload);
+
+        // Event listener for search
+        searchInput.addEventListener('input', handleSearch);
+
+        // Event listener for password submit
+        passwordSubmit.addEventListener('click', handlePasswordSubmit);
+
+        // Function to handle password submission
+        function handlePasswordSubmit() {
+            const enteredPassword = passwordInput.value;
+            if (enteredPassword === CORRECT_PASSWORD) {
+                passwordContainer.style.display = 'none';
+                passwordInput.value = '';
+                csvFileInput.click();
+            } else {
+                alert('Incorrect password. Please try again.');
+                passwordInput.value = '';
+            }
+        }
+
+        // Function to handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file.');
+                return;
+            }
+            
+            // Show loading spinner
+            leaderboardBody.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Processing data...</p>
+                </div>
+            `;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const csvData = e.target.result;
+                processAndDisplayData(csvData);
+            };
+            reader.readAsText(file);
+        }
+
+        // Function to process and display data
+        function processAndDisplayData(csvData) {
+            try {
+                // Process the CSV data
+                leaderboardData = processCSVData(csvData);
+                
+                // Sort data: First by prestige level (highest first), then by badge count (highest first)
+                leaderboardData.sort((a, b) => {
+                    const prestigeOrder = { "IV": 4, "III": 3, "II": 2, "I": 1 };
+                    
+                    // Compare prestige levels
+                    if (prestigeOrder[a.prestigeLevel] !== prestigeOrder[b.prestigeLevel]) {
+                        return prestigeOrder[b.prestigeLevel] - prestigeOrder[a.prestigeLevel];
+                    }
+                    
+                    // If same prestige, compare badge counts
+                    if (a.badgeCount !== b.badgeCount) {
+                        return b.badgeCount - a.badgeCount;
+                    }
+                    
+                    // If everything is the same, sort alphabetically by username
+                    return a.username.localeCompare(b.username);
+                });
+                
+                // Save data to server
+                fetch('/api/leaderboard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(leaderboardData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Error saving data to server:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving data to server:', error);
+                });
+                
+                // Reset search and display data
+                searchInput.value = '';
+                filteredData = [...leaderboardData];
+                displayData(filteredData);
+                updateStats(leaderboardData);
+                statsContainer.style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error processing CSV data:', error);
+                leaderboardBody.innerHTML = `
+                    <div class="no-results">
+                        Error processing the CSV file. Please check the file format.
+                    </div>
+                `;
+            }
+        }
+
+        // Function to load saved data from server
+        function loadSavedData() {
+            fetch('/api/leaderboard')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        leaderboardData = data;
+                        filteredData = [...leaderboardData];
+                        displayData(filteredData);
+                        updateStats(leaderboardData);
+                        statsContainer.style.display = 'flex';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading data from server:', error);
+                });
+        }
+
+        // Load saved data when the page loads
+        document.addEventListener('DOMContentLoaded', loadSavedData);
+
+        // Function to display data
+        function displayData(data) {
+            if (data.length === 0) {
+                leaderboardBody.innerHTML = `
+                    <div class="no-results">
+                        No users found matching your search.
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            data.forEach((user, index) => {
+                const prestigeClass = `prestige-${user.prestigeLevel.toLowerCase()}`;
+                
+                html += `
+                    <div class="user-row">
+                        <div class="rank">#${index + 1}</div>
+                        <div class="user-info">
+                            <img src="${user.avatarUrl || 'https://via.placeholder.com/40'}" alt="${user.username}" class="avatar">
+                            <span class="username">${user.username}</span>
+                        </div>
+                        <div class="badge-count">
+                            <span class="badge-icon">🏆</span> ${user.badgeCount}/25
+                        </div>
+                        <div>
+                            <span class="prestige ${prestigeClass}">Prestige ${user.prestigeLevel}</span>
+                        </div>
+                        <div class="progress-status">
+                            ${user.readyToPrestige 
+                                ? '<span class="ready-status">✨ Ready to Prestige!</span>' 
+                                : `<span class="progress-needed">${15 - user.badgeCount} more badge${15 - user.badgeCount !== 1 ? 's' : ''} needed</span>`}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            leaderboardBody.innerHTML = html;
+        }
+
+        // Function to handle search
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                filteredData = [...leaderboardData];
+            } else {
+                filteredData = leaderboardData.filter(user => 
+                    user.username.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            displayData(filteredData);
+        }
+
+        // Function to update statistics
+        function updateStats(data) {
+            const totalMembers = data.length;
+            const prestigeIVCount = data.filter(user => user.prestigeLevel === "IV").length;
+            const prestigeIIICount = data.filter(user => user.prestigeLevel === "III").length;
+            const prestigeIICount = data.filter(user => user.prestigeLevel === "II").length;
+            const readyToPrestigeCount = data.filter(user => user.readyToPrestige).length;
+            
+            totalMembersElement.textContent = totalMembers;
+            prestigeIVCountElement.textContent = prestigeIVCount;
+            prestigeIIICountElement.textContent = prestigeIIICount;
+            prestigeIICountElement.textContent = prestigeIICount;
+            readyToPrestigeCountElement.textContent = readyToPrestigeCount;
+        }
+
+        // Modify the file upload label click handler
+        document.querySelector('.file-upload-label').addEventListener('click', function(e) {
+            e.preventDefault();
+            passwordContainer.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

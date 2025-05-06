@@ -1,29 +1,33 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const port = process.env.PORT || 3000;
 
-const port = 3000;
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
 
-const server = http.createServer((req, res) => {
-  // Serve index.html for the root path
-  if (req.url === '/' || req.url === '/index.html') {
-    fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
-      if (err) {
-        res.writeHead(500);
-        res.end('Error loading index.html');
-        return;
-      }
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      res.end(data);
-    });
-  } else {
-    // Handle 404
-    res.writeHead(404);
-    res.end('Not found');
-  }
+// In-memory storage for the leaderboard data
+let leaderboardData = [];
+
+// API endpoint to get the leaderboard data
+app.get('/api/leaderboard', (req, res) => {
+    res.json(leaderboardData);
 });
 
-server.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
-  console.log('Press Ctrl+C to stop the server');
+// API endpoint to update the leaderboard data
+app.post('/api/leaderboard', (req, res) => {
+    const newData = req.body;
+    if (Array.isArray(newData)) {
+        // Store only top 100 users
+        leaderboardData = newData.slice(0, 100);
+        res.json({ success: true, message: 'Leaderboard updated successfully' });
+    } else {
+        res.status(400).json({ success: false, message: 'Invalid data format' });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
