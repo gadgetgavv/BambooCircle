@@ -57,8 +57,8 @@ app.post('/api/leaderboard', (req, res) => {
     try {
         const newData = req.body;
         if (Array.isArray(newData)) {
-            // Store only top 100 users
-            leaderboardData = newData.slice(0, 100);
+            // Store only top 10000 users
+            leaderboardData = newData.slice(0, 10000);
             console.log(`Updated leaderboard with ${leaderboardData.length} users`);
             res.json({ success: true, message: 'Leaderboard updated successfully' });
         } else {
